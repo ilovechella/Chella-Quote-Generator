@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chella's Quote Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+        }
+
+        .page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 2rem;
+            font-size: 2.8rem;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: 1px;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .quote-box {
+            margin-bottom: 1.5rem;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .quote-text {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            font-style: italic;
+            position: relative;
+            padding: 0 1.5rem;
+        }
+
+        .quote-text::before,
+        .quote-text::after {
+            content: '"';
+            font-size: 4rem;
+            color: #764ba2;
+            position: absolute;
+            opacity: 0.2;
+        }
+
+        .quote-text::before {
+            top: -1rem;
+            left: -1rem;
+        }
+
+        .quote-text::after {
+            bottom: -2rem;
+            right: -1rem;
+        }
+
+        .quote-author {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            text-align: right;
+            font-weight: 500;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #764ba2;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .heart-btn {
+            background: #e74c3c;
+        }
+
+        .share-btn {
+            background: #27ae60;
+        }
+
+        .add-quote-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid rgba(118, 75, 162, 0.2);
+        }
+
+        .add-quote-section h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid rgba(118, 75, 162, 0.2);
+            border-radius: 10px;
+            font-size: 1rem;
+            margin-top: 0.4rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #764ba2;
+        }
+
+        .favorites-container {
+            height: 100%;
+        }
+
+        .favorites-title {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .favorites-list {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 1rem;
+        }
+
+        .favorites-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .favorites-list::-webkit-scrollbar-track {
+            background: rgba(118, 75, 162, 0.1);
+            border-radius: 4px;
+        }
+
+        .favorites-list::-webkit-scrollbar-thumb {
+            background: #764ba2;
+            border-radius: 4px;
+        }
+
+  .favorite-quote {
+        padding: 2.5rem 1.5rem 1.5rem;  /* Increased top padding to accommodate buttons */
+        border-radius: 15px;
+        background: rgba(118, 75, 162, 0.05);
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+        position: relative;
+        word-wrap: break-word;  /* Ensures long words don't overflow */
+    }
+
+    .quote-actions {
+        position: absolute;
+        top: 0.7rem;
+        right: 0.7rem;
+        display: flex;
+        gap: 0.5rem;
+        z-index: 1;
+    }
+
+    .favorite-quote p {
+        position: relative;
+        z-index: 0;
+        max-width: calc(100% - 40px);  /* Ensures text doesn't overlap with buttons */
+    }
+
+    .copy-btn, .delete-btn {
+        background: transparent;
+        padding: 0.4rem;
+        box-shadow: none;
+        min-width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Making favorite quotes more responsive for mobile */
+    @media (max-width: 768px) {
+        .favorite-quote {
+            padding: 3rem 1.2rem 1.2rem;  /* Even more top padding for mobile */
+        }
+
+        .quote-actions {
+            top: 0.5rem;
+            right: 0.5rem;
+        }
+
+        .copy-btn, .delete-btn {
+            min-width: 30px;
+            height: 30px;
+            padding: 0.3rem;
+        }
+
+        .favorite-quote p {
+            font-size: 0.95rem;
+            max-width: 100%;  /* Allow full width for text on mobile */
+            margin-right: 0;  /* Remove right margin on mobile */
+        }
+    }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(46, 204, 113, 0.9);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            display: none;
+            animation: slideIn 0.5s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .fade {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .fade.show {
+            opacity: 1;
+        }
+            .footer {
+        text-align: center;
+        color: white;
+        padding: 2rem 0 1rem;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .footer a {
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        position: relative;
+    }
+
+    .footer a:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+        .footer {
+            padding: 1.5rem 0 1rem;
+            font-size: 0.8rem;
+        }
+    }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <h1> Chella's Quote Generator </h1>
+        <div class="main-container">
+            <div class="container">
+                <div class="quote-box fade show">
+                    <p class="quote-text" id="quote">Life is what happens when you're busy making other plans.</p>
+                    <p class="quote-author" id="author">- John Lennon</p>
+                </div>
+                <div class="buttons">
+                    <button onclick="generateQuote()">→ Next Quote</button>
+                    <button onclick="shareQuote()" class="share-btn">📋 Copy</button>
+                    <button onclick="toggleFavorite()" class="heart-btn">❤️ Favorite</button>
+                </div>
+
+                <div class="add-quote-section">
+                    <h3>✍️ Add Your Own Quote</h3>
+                    <div class="input-group">
+                        <textarea id="newQuoteText" placeholder="Enter your quote" rows="3"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="newQuoteAuthor" placeholder="Enter author name">
+                    </div>
+                    <button onclick="addCustomQuote()">➕ Add to Favorites</button>
+                </div>
+            </div>
+
+            <div class="container favorites-container">
+                <h2 class="favorites-title">❤️ Favorite Quotes</h2>
+                <div class="favorites-list" id="favoritesList">
+                    <!-- Favorite quotes will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Copied to clipboard!</div>
+
+    <script>
+        const quotes = [
+    {
+        text: "The only way to do great work is to love what you do.",
+        author: "Steve Jobs"
+    },
+    {
+        text: "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+        author: "Winston Churchill"
+    },
+    {
+        text: "Life is what happens when you're busy making other plans.",
+        author: "John Lennon"
+    },
+    {
+        text: "The best way to predict the future is to invent it.",
+        author: "Alan Kay"
+    },
+    {
+        text: "Don't watch the clock; do what it does. Keep going.",
+        author: "Sam Levenson"
+    },
+    {
+        text: "The journey of a thousand miles begins with one step.",
+        author: "Lao Tzu"
+    },
+    {
+        text: "Believe you can and you're halfway there.",
+        author: "Theodore Roosevelt"
+    },
+    {
+        text: "To succeed in life, you need two things: ignorance and confidence.",
+        author: "Mark Twain"
+    },
+    {
+        text: "What we think, we become.",
+        author: "Buddha"
+    },
+    {
+        text: "Do what you can, with what you have, where you are.",
+        author: "Theodore Roosevelt"
+    }
+];
+
+
+        const quoteText = document.getElementById("quote");
+        const quoteAuthor = document.getElementById("author");
+        const quoteBox = document.querySelector(".quote-box");
+        const favoritesList = document.getElementById("favoritesList");
+        const toast = document.getElementById("toast");
+
+        // Load favorites from localStorage
+        let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+        updateFavoritesList();
+
+        function generateQuote() {
+            quoteBox.classList.remove("show");
+            
+            setTimeout(() => {
+                const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+                quoteText.textContent = randomQuote.text;
+                quoteAuthor.textContent = "- " + randomQuote.author;
+                quoteBox.classList.add("show");
+            }, 500);
+        }
+
+        function shareQuote() {
+            const textToCopy = `${quoteText.textContent}\n${quoteAuthor.textContent}`;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast("Quote copied to clipboard! ✨");
+            });
+        }
+
+        function copyFavorite(index) {
+            const quote = favorites[index];
+            const textToCopy = `${quote.text}\n${quote.author}`;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast("Favorite quote copied! ✨");
+            });
+        }
+
+        function toggleFavorite() {
+            const currentQuote = {
+                text: quoteText.textContent,
+                author: quoteAuthor.textContent
+            };
+
+            const existingIndex = favorites.findIndex(q => 
+                q.text === currentQuote.text && q.author === currentQuote.author
+            );
+
+            if (existingIndex === -1) {
+                favorites.push(currentQuote);
+                showToast("Added to favorites! ❤️");
+            } else {
+                favorites.splice(existingIndex, 1);
+                showToast("Removed from favorites!");
+            }
+
+            localStorage.setItem("favorites", JSON.stringify(favorites));
+            updateFavoritesList();
+        }
+
+        function addCustomQuote() {
+            const text = document.getElementById("newQuoteText").value.trim();
+            const author = document.getElementById("newQuoteAuthor").value.trim();
+
+            if (!text || !author) {
+                showToast("Please fill in both fields! 📝");
+                return;
+            }
+
+            const newQuote = {
+                text: text,
+                author: "- " + author
+            };
+
+            favorites.push(newQuote);
+            localStorage.setItem("favorites", JSON.stringify(favorites));
+            updateFavoritesList();
+
+            // Clear inputs
+            document.getElementById("newQuoteText").value = "";
+            document.getElementById("newQuoteAuthor").value = "";
+
+            showToast("Custom quote added to favorites! ✨");
+        }
+
+        function updateFavoritesList() {
+            favoritesList.innerHTML = favorites.length ? 
+                favorites.map((quote, index) => `
+                    <div class="favorite-quote">
+                        <button onclick="copyFavorite(${index})" class="copy-btn">📋</button>
+                        <p style="font-style: italic; margin-bottom: 0.5rem;">${quote.text}</p>
+                        <p style="color: #666;">${quote.author}</p>
+                    </div>
+                `).join("") :
+                '<p style="text-align: center; color: #666;">No favorite quotes yet</p>';
+        }
+    function deleteFavorite(index) {
+        favorites.splice(index, 1);
+        localStorage.setItem("favorites", JSON.stringify(favorites));
+        updateFavoritesList();
+        showToast("Quote removed from favorites! 🗑️");
+    }
+
+    function updateFavoritesList() {
+        favoritesList.innerHTML = favorites.length ? 
+            favorites.map((quote, index) => `
+                <div class="favorite-quote">
+                    <div class="quote-actions">
+                        <button onclick="copyFavorite(${index})" class="copy-btn">📋</button>
+                        <button onclick="deleteFavorite(${index})" class="delete-btn">🗑️</button>
+                    </div>
+                    <p style="font-style: italic; margin-bottom: 0.5rem;">${quote.text}</p>
+                    <p style="color: #666;">${quote.author}</p>
+                </div>
+            `).join("") :
+            '<p style="text-align: center; color: #666;">No favorite quotes yet</p>';
+    }
+        function showToast(message) {
+            toast.textContent = message;
+            toast.style.display = "block";
+            setTimeout(() => {
+                toast.style.display = "none";
+            }, 2000);
+        }
+    </script>
+    <div class="footer">
+      All rights reserved by <a href="https://github.com/ilovechella" target="_blank">Chella</a> © 2024
+    </div>
+</body>
+  </html>
